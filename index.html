@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>On Off Switch</title>
+  <!--Google Font-->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- fontawesome -->
+  <script src="https://kit.fontawesome.com/7e55d24a02.js" crossorigin="anonymous"></script>
+  <!-- socket-io  -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
+  <!--Linking Stylesheet-->
+  <style>
+    * {
+      box-sizing: inherit;
+      margin: 0;
+      padding: 0;
+    }
+
+    *::before,
+    *::after {
+      box-sizing: inherit;
+    }
+
+    html {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: #1a183f;
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "Varela Round", sans-serif;
+    }
+
+    .container {
+      min-width: 500px;
+      max-width: 700px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 15px 15px;
+      height: auto;
+      z-index: 1;
+    }
+
+    /* loading animation */
+    .loading_wrapper.lodingnone {
+      display: none;
+    }
+
+    .loading_wrapper {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background-color: #1a183f;
+      z-index: 999;
+      display: -ms-grid;
+      display: grid;
+      place-items: center;
+      -webkit-transition: background-color, opacity 0.3s ease 2s;
+      -o-transition: background-color, opacity 0.3s ease 2s;
+      transition: background-color, opacity 0.3s ease 2s;
+    }
+
+    .loading_container {
+      height: 350px;
+      width: 350px;
+      -webkit-animation: spin 1.5s infinite;
+      animation: spin 1.5s infinite;
+    }
+
+    @-webkit-keyframes spin {
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes spin {
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading_container>div:nth-child(1) {
+      height: 75px;
+      width: 75px;
+      background-image: -o-linear-gradient(45deg, #f7d000, #e6970e);
+      background-image: linear-gradient(45deg, #f7d000, #e6970e);
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      -webkit-box-shadow: 0 0 3px #f7d000;
+      box-shadow: 0 0 3px #f7d000;
+      border-radius: 50%;
+      -webkit-animation: move1 1.5s infinite;
+      animation: move1 1.5s infinite;
+    }
+
+    @-webkit-keyframes move1 {
+      50% {
+        -webkit-transform: translate(-30px, -30px) scale(0.3);
+        transform: translate(-30px, -30px) scale(0.3);
+      }
+    }
+
+    @keyframes move1 {
+      50% {
+        -webkit-transform: translate(-30px, -30px) scale(0.3);
+        transform: translate(-30px, -30px) scale(0.3);
+      }
+    }
+
+    .loading_container>div:nth-child(2) {
+      height: 45px;
+      width: 45px;
+      background-image: -o-linear-gradient(45deg, #00d7f7, #04c0f5);
+      background-image: linear-gradient(45deg, #00d7f7, #04c0f5);
+      position: absolute;
+      top: 105px;
+      right: 110px;
+      -webkit-box-shadow: 0 0 2px #00d7f7;
+      box-shadow: 0 0 2px #00d7f7;
+      border-radius: 50%;
+      -webkit-animation: move2 1.5s infinite;
+      animation: move2 1.5s infinite;
+    }
+
+    @-webkit-keyframes move2 {
+      50% {
+        -webkit-transform: translate(15px, -20px) scale(0.55);
+        transform: translate(15px, -20px) scale(0.55);
+      }
+    }
+
+    @keyframes move2 {
+      50% {
+        -webkit-transform: translate(15px, -20px) scale(0.55);
+        transform: translate(15px, -20px) scale(0.55);
+      }
+    }
+
+    .loading_container>div:nth-child(3) {
+      height: 75px;
+      width: 75px;
+      background-image: -o-linear-gradient(45deg, #f60180, #f7014f);
+      background-image: linear-gradient(45deg, #f60180, #f7014f);
+      position: absolute;
+      bottom: 100px;
+      right: 100px;
+      -webkit-box-shadow: 0 0 3px #f60180;
+      box-shadow: 0 0 3px #f60180;
+      border-radius: 50%;
+      -webkit-animation: move3 1.5s infinite;
+      animation: move3 1.5s infinite;
+    }
+
+    @-webkit-keyframes move3 {
+      50% {
+        -webkit-transform: translate(30px, 30px) scale(0.3);
+        transform: translate(30px, 30px) scale(0.3);
+      }
+    }
+
+    @keyframes move3 {
+      50% {
+        -webkit-transform: translate(30px, 30px) scale(0.3);
+        transform: translate(30px, 30px) scale(0.3);
+      }
+    }
+
+    .loading_container>div:nth-child(4) {
+      height: 45px;
+      width: 45px;
+      background-image: -o-linear-gradient(45deg, #da00f7, #b501f6);
+      background-image: linear-gradient(45deg, #da00f7, #b501f6);
+      position: absolute;
+      bottom: 105px;
+      left: 110px;
+      border-radius: 50%;
+      -webkit-animation: move4 1.5s infinite;
+      animation: move4 1.5s infinite;
+    }
+
+    @-webkit-keyframes move4 {
+      50% {
+        -webkit-transform: translate(-15px, 20px) scale(0.55);
+        transform: translate(-15px, 20px) scale(0.55);
+      }
+    }
+
+    @keyframes move4 {
+      50% {
+        -webkit-transform: translate(-15px, 20px) scale(0.55);
+        transform: translate(-15px, 20px) scale(0.55);
+      }
+    }
+
+    /* input box */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    :root {
+      --input-color: #99a3ba;
+      --input-border: #cdd9ed;
+      --input-background: #fff;
+      --input-placeholder: #cbd1dc;
+
+      --input-border-focus: #275efe;
+
+      --group-color: var(--input-color);
+      --group-border: var(--input-border);
+      --group-background: #eef4ff;
+
+      --group-color-focus: #fff;
+      --group-border-focus: var(--input-border-focus);
+      --group-background-focus: #678efe;
+    }
+
+    .form-field {
+      display: block;
+      width: 100%;
+      padding: 8px 16px;
+      line-height: 25px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      border-radius: 6px;
+      -webkit-appearance: none;
+      color: var(--input-color);
+      border: 1px solid var(--input-border);
+      background: var(--input-background);
+      transition: border 0.3s ease;
+    }
+
+    .form-field::placeholder {
+      color: var(--input-placeholder);
+    }
+
+    .form-field:focus {
+      outline: none;
+      border-color: var(--input-border-focus);
+    }
+
+    .form-group {
+      position: relative;
+      display: flex;
+      width: 100%;
+    }
+
+    .form-group input[type="button"],
+    .form-field {
+      white-space: nowrap;
+      display: block;
+      outline: none;
+    }
+
+    .form-group .form-field:first-child {
+      border-radius: 6px 0 0 6px;
+    }
+
+    .form-group input[type="button"] {
+      border-radius: 0 6px 6px 0;
+    }
+
+    .form-field {
+      position: relative;
+      z-index: 1;
+      flex: 1 1 auto;
+      width: 1%;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .form-group input[type="button"] {
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 25px;
+      color: var(--group-color);
+      background: var(--group-background);
+      border: 1px solid var(--group-border);
+      transition: background 0.3s ease, border 0.3s ease, color 0.3s ease;
+    }
+
+    .form-group:focus-within input[type="button"] {
+      color: var(--group-color-focus);
+      background: var(--group-background-focus);
+      border-color: var(--group-border-focus);
+    }
+
+    /* Center */
+    body .form-group {
+      max-width: 68%;
+      /* margin-right: 14px; */
+    }
+
+    /* main css */
+    .container>.headline {
+      color: #19d28f;
+      text-align: center;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      background-color: #19d28f;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .logo>h1 {
+      color: #fff;
+      font-size: 50px;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+    }
+
+    #toggle_button {
+      list-style: none;
+      color: #fff;
+      max-width: 80%;
+      flex: 800%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #toggle_button>li {
+      padding: 13px 0;
+      font-size: 20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      position: relative;
+    }
+
+    .line {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 55%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      height: 1px;
+      background: #fff;
+    }
+
+    .glowLine {
+      background: rgb(205, 230, 44);
+      box-shadow: 0 0px 1px 0.5px rgba(255, 238, 0, 0.25),
+        0 0px 2px 1px rgba(255, 217, 0, 0.2),
+        0 0px 3px 1.5px rgba(242, 255, 0, 0.15),
+        0 0px 4px 2px rgba(255, 247, 0, 0.1),
+        0 0px 5px 2.5px rgba(251, 255, 0, 0.05);
+    }
+
+    #toggle_button>li input[type="checkbox"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      height: 24px;
+      width: 45px;
+      background-color: #34384b;
+      border-radius: 25px;
+      position: absolute;
+      right: 32px;
+      margin: auto;
+      cursor: pointer;
+      outline: none;
+      -webkit-transition: 0.3s;
+      -o-transition: 0.3s;
+      transition: 0.3s;
+    }
+
+    #toggle_button>li input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      background-color: #d5d5d5;
+      border-radius: 50%;
+      left: 2.5px;
+      top: 2px;
+      -webkit-transition: 0.3s;
+      -o-transition: 0.3s;
+      transition: 0.3s;
+    }
+
+    #toggle_button>li input[type="checkbox"]::after {
+      content: "OFF";
+      position: absolute;
+      color: #d5d5d5;
+      font-size: 12px;
+      font-weight: 600;
+      left: 50px;
+      bottom: 4px;
+      letter-spacing: 1px;
+      -webkit-transition: 0.3s;
+      -o-transition: 0.3s;
+      transition: 0.3s;
+    }
+
+    #toggle_button>li input[type="checkbox"]:checked {
+      background-color: #19d28f;
+    }
+
+    #toggle_button>li input[type="checkbox"]:checked::before {
+      background-color: #1f212d;
+      left: 22.5px;
+    }
+
+    #toggle_button>li input[type="checkbox"]:checked:after {
+      content: "ON";
+      color: #19d28f;
+    }
+
+    /* toggle button */
+    .button_wrapper {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #nightMode[type="checkbox"],
+    #extendMonitor[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 50px;
+      height: 100px;
+      background-color: #34384b;
+      border-radius: 50px;
+      position: absolute;
+      margin: auto;
+      cursor: pointer;
+      outline: none;
+      transition: 0.3s;
+      display: flex;
+      margin-top: 50px;
+    }
+
+    #nightMode[type="checkbox"]::before,
+    #extendMonitor[type="checkbox"]:before {
+      content: "";
+      position: absolute;
+      height: 40px;
+      width: 40px;
+      background-color: #d5d5d5;
+      border-radius: 50%;
+      left: 5px;
+      top: 6px;
+      transition: 0.3s;
+    }
+
+    #nightMode[type="checkbox"]:checked,
+    #extendMonitor[type="checkbox"]:checked {
+      background-color: #19d28f;
+    }
+
+    #nightMode[type="checkbox"]:checked::before,
+    #extendMonitor[type="checkbox"]:checked::before {
+      background-color: #1f212d;
+      top: 55px;
+    }
+
+    .btn_div {
+      max-width: 20%;
+      flex: 20%;
+      margin: 0 26px;
+    }
+
+    .btn_div>ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    .btn_div>ul>li {
+      list-style: none;
+      height: 150px;
+    }
+
+    .btn_div>ul:last-child {
+      padding-bottom: 20px;
+    }
+
+    .btnlogo {
+      position: relative;
+      top: 10px;
+      left: 7px;
+      font-size: 20px;
+      width: 35px;
+      height: 35px;
+      background: #34384b;
+      color: #d5d5d5;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+    }
+
+
+    /* monitor design */
+    .monitor_section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #monitor {
+      max-width: 50%;
+      flex: 50%;
+      height: 150px;
+      background-color: #060d38;
+      border: 3px solid #d5d5d5;
+      border-radius: 5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    #monitor>.monitor_inner {
+      padding: 10px;
+    }
+
+    /* weather */
+
+    #weather {
+      max-width: 50%;
+      flex: 50%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: #fff;
+    }
+
+    #weather #temp {
+      display: flex;
+    }
+
+    #weather #temp p {
+      margin-top: 15px;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    #temp>span {
+      font-size: 20px;
+      font-weight: 400;
+    }
+
+    .form-group input[type="button"] {
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="loading_wrapper">
+    <div class="loading_container">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+  <div class="container">
+    <h1 class="headline">Device Controller</h1>
+    <div class="header">
+      <div class="logo">
+        <h1>FS</h1>
+      </div>
+      <form class="form-group">
+        <input class="form-field" id="valueSend" type="text" placeholder="Value...">
+        <input type="button" value="Send" onclick="value_Send()">
+      </form>
+    </div>
+    <div class="button_wrapper">
+      <div class="btn_div">
+        <ul>
+          <li><input type="checkbox" id="nightMode">
+            <div class="btnlogo"><i class="fas fa-moon"></i></div>
+          </li>
+          <li><input type="checkbox" id="extendMonitor">
+            <div class="btnlogo"><i class="fas fa-desktop"></i></div>
+          </li>
+        </ul>
+      </div>
+      <ul id="toggle_button">
+        <li><span>Table Light</span> <span class="line"></span><input type="checkbox" id="tableLight"></li>
+        <li><span>Room Light</span><span class="line"></span><input type="checkbox" id="rmLight"></li>
+        <li><span>Blue Light</span><span class="line"></span><input type="checkbox" id="blueLight"></li>
+        <li><span>Table Fan</span><span class="line"></span><input type="checkbox" id="tbFan"></li>
+        <li><span>Back Light</span><span class="line"></span><input type="checkbox" id="backLight"></li>
+        <li><span>Sound Box</span><span class="line"></span><input type="checkbox" id="soundBox"></li>
+      </ul>
+    </div>
+    <div class="monitor_section">
+      <div id="weather">
+        <h1 id="temp"></h1>
+        <p id="date"></p>
+        <div id="weathercon"></div>
+      </div>
+      <div id="monitor">
+        <h2>Receive from arduino:</h2>
+        <div class="monitor_inner">
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var socket = io();
+    socket.on('data', function (data) {
+      console.log(data);
+      document.querySelector('#monitor .monitor_inner').innerText = data;
+    });
+    const nightMode = document.querySelector("#nightMode");
+    const extendMonitor = document.querySelector("#extendMonitor");
+
+    const tableLight = document.querySelector("#tableLight");
+    const rmLight = document.querySelector("#rmLight");
+    const blueLight = document.querySelector("#blueLight");
+    const tbFan = document.querySelector("#tbFan");
+    const backLight = document.querySelector("#backLight");
+    const soundBox = document.querySelector("#soundBox");
+
+
+    let value_send;
+
+    document.querySelector(".form-group").addEventListener("submit", (e) => {
+      e.preventDefault()
+    })
+
+    let valueSend = document.querySelector("#valueSend");
+    valueSend.addEventListener("input", (e) => {
+      value_send = e.target.value;
+    })
+
+    function value_Send() {
+      socket.emit("lights", {
+        status: value_send,
+      })
+      valueSend.value = "";
+    }
+
+
+
+    let night_mode; //1/2-49/50
+    let extend_monitor; //e/r-101/114
+
+    let table_light; //5/6-53/54
+    let rm_light; //t/y-116/121
+    let blue_light; //q/w-113/119
+    let table_fan; //3/4-51/52
+    let back_light; //7/8-55/56
+    let sound_box; //u/i-117/105
+
+    //1/2-49/50
+    nightMode.addEventListener("click", (e) => {
+      night_mode = e.target.checked;
+      if (night_mode) {
+        rmLight.checked = false;
+        backLight.checked = true;
+        blueLight.checked = true;
+        socket.emit("lights", {
+          status: "1",
+        });
+      } else {
+        rmLight.checked = true;
+        backLight.checked = false;
+        blueLight.checked = false;
+        socket.emit("lights", {
+          status: "2",
+        });
+      }
+    });
+
+    //e/r-101/114
+    extendMonitor.checked = true;
+    extendMonitor.addEventListener("click", (e) => {
+      extend_monitor = e.target.checked;
+      if (extend_monitor) {
+        socket.emit("lights", {
+          status: "e",
+        });
+      } else {
+        socket.emit("lights", {
+          status: "r",
+        });
+      }
+    });
+
+    //5/6-53/54
+    tableLight.addEventListener("click", (e) => {
+      table_light = e.target.checked;
+      if (table_light) {
+        socket.emit("lights", {
+          status: "5",
+        });
+      } else {
+        socket.emit("lights", {
+          status: "6",
+        });
+      }
+    })
+
+    //t/y-116/121
+    rmLight.checked = true;
+    rmLight.addEventListener("click", (e) => {
+      rm_light = e.target.checked;
+      if (rm_light) {
+        blueLight.checked = false;
+        socket.emit("lights", {
+          status: "t",
+        });
+      } else {
+        socket.emit("lights", {
+          status: "y",
+        });
+      }
+    })
+
+    //q/w-113/119
+    blueLight.addEventListener("click", (e) => {
+      blue_light = e.target.checked;
+      if (blue_light) {
+        rmLight.checked = false;
+        socket.emit("lights", {
+          status: "q",
+        });
+      } else {
+        nightMode.checked = false;
+        socket.emit("lights", {
+          status: "w",
+        });
+      }
+    })
+
+    //3/4-51/52
+    tbFan.addEventListener("click", (e) => {
+      table_fan = e.target.checked;
+      if (table_fan) {
+        socket.emit("lights", {
+          status: "3",
+        });
+      } else {
+        socket.emit("lights", {
+          status: "4",
+        });
+      }
+    })
+
+    //7/8-55/56
+    backLight.addEventListener("click", (e) => {
+      back_light = e.target.checked;
+      if (back_light) {
+        socket.emit("lights", {
+          status: "7",
+        });
+      } else {
+        nightMode.checked = false;
+        socket.emit("lights", {
+          status: "8",
+        });
+      }
+    })
+
+    //u/i-117/105
+    soundBox.addEventListener("click", (e) => {
+      sound_box = e.target.checked;
+      if (sound_box) {
+        socket.emit("lights", {
+          status: "u",
+        });
+      } else {
+        socket.emit("lights", {
+          status: "i",
+        });
+      }
+    })
+
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.querySelector(".loading_wrapper").classList.add("lodingnone");
+      }, 1000);
+    });
+
+    const curDate = document.getElementById("date");
+    let weathercon = document.getElementById("weathercon");
+
+    const tempStatus = "Clouds";
+
+    const getCurrentDay = () => {
+      var weekday = new Array(7);
+      weekday[0] = "Sunday";
+      weekday[1] = "Monday";
+      weekday[2] = "Tuesday";
+      weekday[3] = "Wednesday";
+      weekday[4] = "thursday";
+      weekday[5] = "Friday";
+      weekday[6] = "Saturday";
+
+      let currentTime = new Date();
+      let day = weekday[currentTime.getDay()];
+      return day;
+    };
+
+    function weather_fun() {
+      const getCurrentTime = () => {
+        var months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "June",
+          "July",
+          "Aug",
+          "Sept",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+
+        var now = new Date();
+        var month = months[now.getMonth()];
+        var date = now.getDate();
+
+        let hours = now.getHours();
+        let mins = now.getMinutes();
+
+        let perios = "AM";
+
+        if (hours > 11) {
+          perios = "PM";
+          if (hours > 12) hours -= 12;
+        }
+        if (mins < 10) {
+          mins = "0" + mins;
+        }
+        return ` ${month} ${date} | ${hours}:${mins}${perios}`;
+      };
+      curDate.innerHTML = getCurrentDay() + " |" + getCurrentTime();
+      const
+        url = "http://api.openweathermap.org/data/2.5/weather?q=sherpur,bogura&appid=9f377e591e8eb249f33d640e4653b595";
+      fetch(url)
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          let temp;
+          document.querySelector("#temp").innerHTML = `${(
+      (data.coord.lon - 32) /
+      1.8
+      ).toFixed(2)}<span>o</span><p>Temp</p>`;
+        });
+    }
+
+    weather_fun();
+  </script>
+
+</body>
+
+</html>

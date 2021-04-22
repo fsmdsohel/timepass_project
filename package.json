@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "npm run open & node app.js",
+    "open": "start http://localhost:8080"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serialport": "^9.0.1",
+    "socket.io": "^2.0.4"
+  }
+}
