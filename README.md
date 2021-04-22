@@ -1,10 +1,10 @@
 
 Title- Timepass project
-<b>
+<br/>
 Description- Control electronic device form website.
-  <b>
+<br/>
 Author- Dev Sohel
-    <b>
+<br/>
 Website- https://dev-sohel.netlify.app/
 Date- 2021-04-21
 
