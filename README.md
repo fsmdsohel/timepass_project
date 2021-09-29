@@ -7,7 +7,7 @@ Project demo video: https://www.facebook.com/100032688095172/videos/438114377288
 <br/>
 Author: Dev Sohel
 <br/>
-Website: https://dev-sohel.netlify.app/
+Website: https://fsmdsohel.github.io/dev-sohel/
 <br/>
 Date: 2021-04-21
 
